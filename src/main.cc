@@ -12,11 +12,26 @@
 
 using namespace std;
 
+string get_args_value(parser* p, string arg)
+{
+	string value = p->get_value(arg.c_str());
+	if (value.empty())
+	{
+		string format = strings::vformat("Fatal Error! %s has been sent without value",
+			arg.c_str());
+		cperror((char*)format.c_str());
+		exit(EXIT_FAILURE);
+	}
+	else
+		return value;
+}
 int main(int argc, const char** argv)
 {
 	extern configuration_manager_t config;
 	list<string> words_list;
 	string startpoint = ".";
+	
+	words_list = get_default_word_list();
 
 	parser p(argc, argv);
 	if (p.has_kay("-d"))
@@ -87,9 +102,29 @@ int main(int argc, const char** argv)
 		startpoint = value;
 	}
 
-	if (words_list.size() == 0)
-		words_list = get_default_word_list();
-
+	if (p.has_kay("--common-places"))
+	{
+		/*
+		string value = p.get_value("--common-places");
+		if (value.empty())
+		{
+			cperror((char*)"Fatal Error! -sp has been sent without value");
+			exit(EXIT_FAILURE);
+		}
+		*/
+		string value = get_args_value(&p, "--common-places");
+		if (strings::to_lower(value) == "windows")
+		{
+			scan_r("C:\\ProgramData", words_list);
+			scan_r("C:\\Users", words_list);
+			scan_r("C:\\Inetpub", words_list);
+		}
+		else if (strings::to_lower(value) == "linux")
+		{
+			printf("Linux common places will come soon ..");
+			exit(EXIT_FAILURE);
+		}
+	}
 	if (config.debug)
 	{
 		cprintf(color::blue, "\n%s\n", "debug:");
