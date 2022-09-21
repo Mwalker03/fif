@@ -42,44 +42,23 @@ int main(int argc, const char** argv)
 		config.verbose = true;
 	if (p.has_kay("-w"))
 	{
-		string value = p.get_value("-w");
-		if (value.empty())
-		{
-			cperror((char *)"Fatal Error! -w has been sent without value");
-			exit(EXIT_FAILURE);
-		}
+		string value = get_args_value(&p, "-w");
 		words_list = parse_words_list(value);
 	}
 	if (p.has_kay("-W"))
 	{
-		string value = p.get_value("-W");
-		if (value.empty())
-		{
-			cperror((char *)"Fatal Error! -W has been sent without value");
-			exit(EXIT_FAILURE);
-		}
-
+		string value = get_args_value(&p, "-W");
 		words_list = get_words_from_file(value);
 	}
 	if (p.has_kay("-o"))
 	{
-		string value = p.get_value("-o");
-		if (value.empty())
-		{
-			cperror((char *)"Fatal Error! -o has been sent without value");
-			exit(EXIT_FAILURE);
-		}
+		string value = get_args_value(&p, "-o");
 		config.to_file = true;
 		config.output_file_path = value;
 	}
 	if (p.has_kay("-l"))
 	{
-		string value = p.get_value("-o");
-		if (value.empty())
-		{
-			cperror((char *)"Fatal Error! -o has been sent without value");
-			exit(EXIT_FAILURE);
-		}
+		string value = get_args_value(&p, "-l");
 		int n = atoi(value.c_str());
 		if (n == 0 || n < 1 || n > 9999999)
 			printf("value must be between 1 and 9999999");
@@ -93,25 +72,12 @@ int main(int argc, const char** argv)
 	}
 	if (p.has_kay("-sp"))
 	{
-		string value = p.get_value("-sp");
-		if (value.empty())
-		{
-			cperror((char *)"Fatal Error! -sp has been sent without value");
-			exit(EXIT_FAILURE);
-		}
+		string value = get_args_value(&p, "-sp");
 		startpoint = value;
 	}
 
 	if (p.has_kay("--common-places"))
 	{
-		/*
-		string value = p.get_value("--common-places");
-		if (value.empty())
-		{
-			cperror((char*)"Fatal Error! -sp has been sent without value");
-			exit(EXIT_FAILURE);
-		}
-		*/
 		string value = get_args_value(&p, "--common-places");
 		if (strings::to_lower(value) == "windows")
 		{
