@@ -54,6 +54,7 @@ list<string> get_default_word_list()
 	wordlist.push_front("<username>");
 	wordlist.push_front("<password>");
 	wordlist.push_front("adm-");
+	wordlist.push_front("secret");
 
 	return wordlist;
 }
@@ -67,7 +68,7 @@ void print_help()
 		"  -e	show errors\n"
 		"  -v	verbose mode\n"
 		"\nOptions:\n"
-		"  -sp	start point"
+		"  -sp	start point\n"
 		"  -w	words list (separated by $)\n"
 		"  -W	words list from file\n"
 		"  -o	output to a file\n"

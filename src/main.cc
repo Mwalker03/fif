@@ -27,6 +27,8 @@ string get_args_value(parser* p, string arg)
 }
 int main(int argc, const char** argv)
 {
+	fwrite("[Error]: output to stderr", 1, 1, stderr);
+	fprintf(stdout, "just another error");
 	extern configuration_manager_t config;
 	list<string> words_list;
 	string startpoint = ".";
@@ -59,7 +61,7 @@ int main(int argc, const char** argv)
 	if (p.has_kay("-l"))
 	{
 		string value = get_args_value(&p, "-l");
-		int n = atoi(value.c_str());
+		int n = atoi(value.c_str	());
 		if (n == 0 || n < 1 || n > 9999999)
 			printf("value must be between 1 and 9999999");
 		else

@@ -1,5 +1,7 @@
 #include "argsparser.h"
 
+#include <string.h>
+
 bool parser::is_valid()
 {
 	if (this->argc > 2)
