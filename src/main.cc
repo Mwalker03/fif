@@ -27,8 +27,6 @@ string get_args_value(parser* p, string arg)
 }
 int main(int argc, const char** argv)
 {
-	fwrite("[Error]: output to stderr", 1, 1, stderr);
-	fprintf(stdout, "just another error");
 	extern configuration_manager_t config;
 	list<string> words_list;
 	string startpoint = ".";
