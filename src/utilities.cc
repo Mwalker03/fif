@@ -55,6 +55,9 @@ list<string> get_default_word_list()
 	wordlist.push_front("<password>");
 	wordlist.push_front("adm-");
 	wordlist.push_front("secret");
+	wordlist.push_front("passwd:");
+	wordlist.push_front("passwd=");
+	wordlist.push_front("passwd =");
 
 	return wordlist;
 }
@@ -77,11 +80,10 @@ void print_help()
 		"\nmiscellaneous:\n"
 		"  --common-places {Windows, Linux}\n"
 		"		search in common directories such: ProgramData, Users and Inetpub\n"
-		"		Linux common directory will comming soon ... \n"
+		"		Linux common directories will comming soon ... \n"
 		"\nUsage Example:\n"
 		"  fif 		# start from current location\n"
 		"  fif -sp /	# start from root\n"
-		"  fif [location]\n"
 		"  fif -w \"word1$word2$word3\" -sp c:\\users\\[username]\n"
 		"  fif --common-places Windows");
 }

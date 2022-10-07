@@ -10,7 +10,7 @@ project ("fif")
 #add_dependencies (fif "src\argsparser")
 
 if(UNIX)
-    add_executable (fif2 "src/main.cc"
+    add_executable (fif "src/main.cc"
     "src/argsparser/argsparser.h"	 
     "src/argsparser/argsparser.cc"
     "src/strings.h"			
