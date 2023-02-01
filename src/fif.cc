@@ -92,7 +92,7 @@ void scan_r(string root, list<string> pattrens)
 	string filebuff;
 	sen_data sdata;
 	static list<string> ignored = {
-	"exe", "doc", "docx" "xls", "xlsx",
+	"exe", "css", "doc", "docx" "xls", "xlsx",
 	"ppt", "pptx", "odt", "pdf", "ods",
 	"mp3", "mp4", "jpg", "jpeg", "png",
 	"avi", "wav", "zip", "7z", "rar", "tar.gz",
