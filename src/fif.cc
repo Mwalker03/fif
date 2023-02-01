@@ -22,6 +22,7 @@ void write_to_file(string str, string filepath)
 	}
 	else
 	{
+		str += "\n"; // making sure line is finished
 		fprintf(fp, str.c_str());
 		fclose(fp);
 	}
