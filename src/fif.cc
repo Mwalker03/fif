@@ -47,15 +47,6 @@ FILE* f_open(string filepath, string mode)
 }
 void write_to_file(string str, string filepath)
 {
-	/*
-	FILE* fp = fopen(filepath.c_str(), "a+");
-	if (fp == NULL)
-	{
-		if (config.show_errors)
-			cperror((char *)"Failed to open %s for writing (%d: %s)\n",
-				filepath.c_str(), errno, strerror(errno));
-	}
-	*/
 	FILE* fp = f_open(filepath.c_str(), "a+");
 	str += "\n"; // making sure line is finished
 	fprintf(fp, str.c_str());

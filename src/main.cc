@@ -89,8 +89,10 @@ int main(int argc, const char** argv)
 			string exec_path = get_exec_directory();
 			value = strings::vformat("%s\\%s", 
 							exec_path.c_str(), value.c_str());
+			
 			if (config.debug)
 			{
+				cprintf(color::blue, "\n%s\n", "debug:");
 				printf("exec_path: %s\nvalue: %s",
 					exec_path.c_str(), value.c_str());
 			}
@@ -101,8 +103,16 @@ int main(int argc, const char** argv)
 			string exec_path = get_exec_directory();
 			value = strings::vformat("%s/%s",
 				exec_path.c_str(), value.c_str());
+			
+			if (config.debug)
+			{
+				cprintf(color::blue, "\n%s\n", "debug:");
+				printf("exec_path: %s\nvalue: %s",
+					exec_path.c_str(), value.c_str());
+			}
 		}
 #endif
+
 		config.output_file_path = value;
 	}
 	if (p.has_kay("-l"))
