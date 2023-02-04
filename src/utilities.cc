@@ -54,7 +54,10 @@ list<string> get_default_word_list()
 	wordlist.push_front("<username>");
 	wordlist.push_front("<password>");
 	wordlist.push_front("adm-");
-	wordlist.push_front("secret");
+	wordlist.push_front("secret ");
+	wordlist.push_front("secret=");
+	wordlist.push_front("secret:");
+	wordlist.push_front("secret =");
 	wordlist.push_front("passwd:");
 	wordlist.push_front("passwd=");
 	wordlist.push_front("passwd =");
@@ -64,7 +67,8 @@ list<string> get_default_word_list()
 void print_help()
 {
 	printf("\nfif (Find In Files) is a tool to find sensitive data in files\n"
-		"The tool ignore audio/video/office file types\n\n"
+		"The tool ignore audio/video/office file types and step over by default\n"
+		"common directories such: visual studio and nmap ..\n\n"
 		"Usage: fif [options...]\n"
 		"\nDebug:\n"
 		"  -d	print debug vars\n"
@@ -81,6 +85,7 @@ void print_help()
 		"  --common-places {Windows, Linux}\n"
 		"		search in common directories such: ProgramData, Users and Inetpub\n"
 		"		Linux common directories will comming soon ... \n"
+		"  --full-scan		scan the entire drive, do not step over directories"
 		"\nUsage Example:\n"
 		"  fif 		# start from current location\n"
 		"  fif -sp /	# start from root\n"

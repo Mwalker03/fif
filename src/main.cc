@@ -10,8 +10,33 @@
 #include "colors/colors.h"
 #include "fif.h"
 
+#ifdef WIN32_LEAN_AND_MEAN
+	#include <windows.h>
+#else
+	#include <unistd.h>
+#endif
+
 using namespace std;
 
+string get_exec_directory()
+{
+	string exec_dir;
+
+#ifdef _WIN32
+	char buffer[MAX_PATH];
+	GetModuleFileName(NULL, buffer, MAX_PATH);
+	exec_dir = buffer;
+	exec_dir = exec_dir.substr(0, exec_dir.find_last_of("\\/"));
+#else
+	char buffer[1024];
+	int len = readlink("/proc/self/exe", buffer, sizeof(buffer) - 1);
+	buffer[len] = '\0';
+	exec_dir = buffer;
+	exec_dir = exec_dir.substr(0, exec_dir.find_last_of("/"));
+#endif
+
+	return exec_dir;
+}
 string get_args_value(parser* p, string arg)
 {
 	string value = p->get_value(arg.c_str());
@@ -40,6 +65,9 @@ int main(int argc, const char** argv)
 		config.show_errors = true;
 	if (p.has_kay("-v"))
 		config.verbose = true;
+	if (p.has_kay("--full-scan"))
+		config.full_scan = true;
+
 	if (p.has_kay("-w"))
 	{
 		string value = get_args_value(&p, "-w");
@@ -54,12 +82,33 @@ int main(int argc, const char** argv)
 	{
 		string value = get_args_value(&p, "-o");
 		config.to_file = true;
+		// just a small hack for reletive path
+#ifdef _WIN32
+		if (!strings::contains(value, ":"))
+		{
+			string exec_path = get_exec_directory();
+			value = strings::vformat("%s\\%s", 
+							exec_path.c_str(), value.c_str());
+			if (config.debug)
+			{
+				printf("exec_path: %s\nvalue: %s",
+					exec_path.c_str(), value.c_str());
+			}
+		}
+#else
+		else if (!strings::contains(value, "/"))
+		{
+			string exec_path = get_exec_directory();
+			value = strings::vformat("%s/%s",
+				exec_path.c_str(), value.c_str());
+		}
+#endif
 		config.output_file_path = value;
 	}
 	if (p.has_kay("-l"))
 	{
 		string value = get_args_value(&p, "-l");
-		int n = atoi(value.c_str	());
+		int n = atoi(value.c_str());
 		if (n == 0 || n < 1 || n > 9999999)
 			printf("value must be between 1 and 9999999");
 		else

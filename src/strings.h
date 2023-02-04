@@ -87,4 +87,25 @@ public:
         }
         return str;
     }
+    static string trim(string str) 
+    {
+        // Remove spaces from the beginning of the string
+        int i = 0;
+        while (i < str.length() && str[i] == ' ') {
+            ++i;
+        }
+        str.erase(0, i);
+
+        // Remove '\n' and '\t' characters from the end of the string
+        i = str.length() - 1;
+        while (i >= 0 && (str[i] == '\n' || str[i] == '\t' || str[i] == ' ')) {
+            --i;
+        }
+        str.erase(i + 1);
+
+        return str;
+    }
+    static bool contains(const string& haystack, const string& needle) {
+        return haystack.find(needle) != std::string::npos;
+    }
 };

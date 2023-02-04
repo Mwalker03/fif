@@ -1,18 +1,53 @@
 #include "fif.h"
+#include <regex>
 
 #ifdef WIN32_LEAN_AND_MEAN
-#include <direct.h>
+	#include <direct.h>
 #else
-#include <dirent.h>
-#include <limits.h>
-#include  <unistd.h>
-#include <sys/stat.h>
+	#include <dirent.h>
+	#include <limits.h>
+	#include  <unistd.h>
+	#include <sys/stat.h>
 #endif
 
 extern configuration_manager_t config;
 
+bool is_valid_password(const string& password) {
+	std::regex pattern("^[a-zA-Z0-9][a-zA-Z0-9!@#$%^&*()_=\\[\\]{};':\"\\\\|.\\/?]{4,20}$");
+	bool is_match = std::regex_match(password, pattern);
+	return is_match;
+}
+
+bool is_valid_username(const string& username) {
+	std::regex pattern("^[a-zA-Z][a-zA-Z0-9.]*$");
+	bool is_match = std::regex_match(username, pattern);
+	return is_match;
+}
+
+FILE* f_open(string filepath, string mode)
+{
+	FILE* fp = fopen(filepath.c_str(), mode.c_str());
+	if (fp == NULL)
+	{
+		if (config.show_errors)
+		{
+			if (strings::contains(mode, "a") || strings::contains(mode, "w"))
+			{
+				cperror((char*)"Failed to open %s for writing (%d: %s)\n",
+					filepath.c_str(), errno, strerror(errno));
+			}
+			else
+			{
+				cperror((char*)"Failed to open %s for reading (%d: %s)\n",
+					filepath.c_str(), errno, strerror(errno));
+			}
+		}
+	}
+	return fp;
+}
 void write_to_file(string str, string filepath)
 {
+	/*
 	FILE* fp = fopen(filepath.c_str(), "a+");
 	if (fp == NULL)
 	{
@@ -20,25 +55,44 @@ void write_to_file(string str, string filepath)
 			cperror((char *)"Failed to open %s for writing (%d: %s)\n",
 				filepath.c_str(), errno, strerror(errno));
 	}
-	else
-	{
-		str += "\n"; // making sure line is finished
-		fprintf(fp, str.c_str());
-		fclose(fp);
-	}
+	*/
+	FILE* fp = f_open(filepath.c_str(), "a+");
+	str += "\n"; // making sure line is finished
+	fprintf(fp, str.c_str());
+	fclose(fp);
 }
 
+bool is_gold(string patt, string sub)
+{
+	// Divide the result to key-value pair
+	string key = patt;
+	string value = sub;
+	value = value.replace(0, patt.length(), "");
+	value = strings::trim(value);
+	if (strings::contains(key, "us"))
+	{
+		bool is_valid_un = is_valid_username(value);
+		if (!is_valid_un)
+			return false;
+	}
+	else if (strings::contains(key, "p") || 
+			 strings::contains(key, "se"))
+	{
+		if (strings::contains(key, "secret") && 
+			strings::contains(value, "secret"))
+			return false;
+		
+		bool is_valid_ps = is_valid_password(value);
+		if (!is_valid_ps)
+			return false;
+	}
+	return true;
+}
 void find_sensitive_v2(string fname, list<string> pattrens)
 {
-	FILE* fp = NULL;
-	if ((fp = fopen(fname.c_str(), "r")) == NULL)
-	{
-		if (config.show_errors)
-			cperror((char *)"Failed to open %s for reading (%d: %s)\n",
-				fname.c_str(), errno, strerror(errno));
-
+	FILE* fp = f_open(fname.c_str(), "r");
+	if (fp == NULL)
 		return;
-	}
 
 	char buf[10240] = { 0 };
 	int line_counter = 1;
@@ -59,6 +113,10 @@ void find_sensitive_v2(string fname, list<string> pattrens)
 				if (sindex != string::npos)
 				{
 					string sub = line.substr(sindex, 25);
+					if (!config.full_scan)
+						if (!is_gold(patt, sub))
+							continue;
+
 					printf("file %s ", fname.c_str());
 					cprintf(color::blue, "line ");
 					printf("%d: ", line_counter);
@@ -85,6 +143,28 @@ void find_sensitive_v2(string fname, list<string> pattrens)
 	fclose(fp);
 }
 
+bool is_c_dir(string dir_name)
+{
+	static list<string> c_dirs = {
+	"Microsoft Visual Studio", "Adobe",
+	"Bonjour", "Microsoft Office", "VMware",
+	"Windows Media Player", "Windows Photo Viewer",
+	"Android Studio", "Microsoft Web Tools",
+	"Microsoft.NET", "Nmap", "NuGet", "Microsoft SDKs",
+	"Windows Kits", "VirtualBox", "AspNetCore", 
+	"VisualStudio", "Python27"
+	};
+
+	for (string name : c_dirs)
+	{
+		if (strings::contains(
+			strings::to_lower(dir_name), 
+			strings::to_lower(name))
+		)
+			return true;
+	}
+	return false;
+}
 
 void scan_r(string root, list<string> pattrens)
 {
@@ -100,7 +180,7 @@ void scan_r(string root, list<string> pattrens)
 	"msi", "ico", "tif", "tiff", "mkv", "mov",
 	"mpg", "mpeg", "swf", "wmv"
 	};
-
+	
 	files = os::get_directory(root, config.file_size, 
 								ignored, config.show_errors);
 
@@ -113,7 +193,17 @@ void scan_r(string root, list<string> pattrens)
 		if (entry->isfile)
 			find_sensitive_v2(entry->path, pattrens);
 		else
-			scan_r(entry->path, pattrens);
+		{
+			if(config.full_scan)
+				scan_r(entry->path, pattrens);
+			else
+			{
+				if (is_c_dir(entry->path))
+					continue;
+				else
+					scan_r(entry->path, pattrens);
+			}
+		}
 
 		delete entry;
 	}
