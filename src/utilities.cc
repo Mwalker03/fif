@@ -90,5 +90,5 @@ void print_help()
 		"  fif 		# start from current location\n"
 		"  fif -sp /	# start from root\n"
 		"  fif -w \"word1$word2$word3\" -sp c:\\users\\[username]\n"
-		"  fif --common-places Windows");
+		"  fif --common-places Windows\n");
 }

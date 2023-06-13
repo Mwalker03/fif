@@ -98,7 +98,7 @@ int main(int argc, const char** argv)
 			}
 		}
 #else
-		else if (!strings::contains(value, "/"))
+		if (!strings::contains(value, "/"))
 		{
 			string exec_path = get_exec_directory();
 			value = strings::vformat("%s/%s",
