@@ -3,12 +3,12 @@
 #define LINUX
 #else
 #define WINDOWS
+#include "dirent.h"
 #endif
 
 #include <string>
 #include <list>
 #include <vector>
-#include "dirent.h"
 
 using namespace std;
 
