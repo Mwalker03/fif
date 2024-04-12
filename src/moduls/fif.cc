@@ -13,7 +13,7 @@
 extern configuration_manager_t config;
 
 bool is_valid_password(const string& password) {
-	std::regex pattern("^[a-zA-Z0-9][a-zA-Z0-9!@#$%^&*()_=\\[\\]{};':\"\\\\|.\\/?]{4,20}$");
+	std::regex pattern("^[a-zA-Z0-9][a-zA-Z0-9!@#$%^&*()_=\\[\\]{};':\"\\\\|.\\/?]{4,25}$");
 	bool is_match = std::regex_match(password, pattern);
 	return is_match;
 }
@@ -29,7 +29,7 @@ FILE* f_open(string filepath, string mode)
 	FILE* fp = fopen(filepath.c_str(), mode.c_str());
 	if (fp == NULL)
 	{
-		if (config.show_errors)
+		if (global_config.show_errors)
 		{
 			if (strings::contains(mode, "a") || strings::contains(mode, "w"))
 			{
@@ -49,7 +49,7 @@ void write_to_file(string str, string filepath)
 {
 	FILE* fp = f_open(filepath.c_str(), "a+");
 	str += "\n"; // making sure line is finished
-	fprintf(fp, str.c_str());
+	fprintf(fp, "%s", str.c_str());
 	fclose(fp);
 }
 
@@ -79,7 +79,7 @@ bool is_gold(string patt, string sub)
 	}
 	return true;
 }
-void find_sensitive_v2(string fname, list<string> pattrens)
+void local::find_sensitive_v2(string fname, list<string> pattrens)
 {
 	FILE* fp = f_open(fname.c_str(), "r");
 	if (fp == NULL)
@@ -104,7 +104,7 @@ void find_sensitive_v2(string fname, list<string> pattrens)
 				if (sindex != string::npos)
 				{
 					string sub = line.substr(sindex, 25);
-					if (!config.full_scan)
+					if (!global_config.full_scan)
 						if (!is_gold(patt, sub))
 							continue;
 
@@ -112,13 +112,13 @@ void find_sensitive_v2(string fname, list<string> pattrens)
 					cprintf(color::blue, "line ");
 					printf("%d: ", line_counter);
 					cprintf(color::green, "%s\n", sub.c_str());
-					if (config.to_file)
+					if (global_config.to_file)
 					{
-						string format = strings::vformat("file: %s line %d %s", 
+						string format = strings::vformat("file: %s Line: %d %s", 
 															fname.c_str(),
 															line_counter, 
 															sub.c_str());
-						write_to_file(format, config.output_file_path);
+						write_to_file(format, global_config.output_file_path);
 					}
 				}
 			}
@@ -157,7 +157,7 @@ bool is_c_dir(string dir_name)
 	return false;
 }
 
-void scan_r(string root, list<string> pattrens)
+void local::scan_r(string root, list<string> pattrens)
 {
 	list<fileentry *> files;
 	string filebuff;
@@ -172,30 +172,45 @@ void scan_r(string root, list<string> pattrens)
 	"mpg", "mpeg", "swf", "wmv"
 	};
 	
-	files = os::get_directory(root, config.file_size, 
-								ignored, config.show_errors);
+	files = os::get_directory(root, global_config.file_size, 
+								ignored, global_config.show_errors);
 
 	for (fileentry *entry : files)
 	{
-		if (config.verbose)
+		if (global_config.verbose)
 			cprintf(color::mangeta,
 				"entry.path: %s\n", entry->path.c_str());
 
 		if (entry->isfile)
-			find_sensitive_v2(entry->path, pattrens);
+			local::find_sensitive_v2(entry->path, pattrens);
 		else
 		{
-			if(config.full_scan)
-				scan_r(entry->path, pattrens);
+			if(global_config.full_scan)
+				local::scan_r(entry->path, pattrens);
 			else
 			{
 				if (is_c_dir(entry->path))
 					continue;
 				else
-					scan_r(entry->path, pattrens);
+					local::scan_r(entry->path, pattrens);
 			}
 		}
 
 		delete entry;
-	}
+	}	
+}
+
+local_config local::parse_args(parser *p)
+{
+	local_config lc;
+	if(p->has_kay("--full-scan"))
+		global_config.full_scan = true;
+
+	if(p->has_kay("--common-places"))
+	{
+		string value = get_arg_value(p, "--common-places");
+		lc.common_places = true;
+		lc.cp = value;
+	}	
+	return lc;
 }

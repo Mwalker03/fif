@@ -53,8 +53,6 @@ size_t os::get_file_size(string fpath)
 }
 string os::get_file_ext(string fname)
 {
-	//return fname.substr(fname.rfind(".") + 1);
-
 	return fname.substr(fname.find_last_of(".") + 1);
 }
 

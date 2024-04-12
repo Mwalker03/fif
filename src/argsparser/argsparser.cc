@@ -66,7 +66,7 @@ void parser::print_args()
 		printf("argc: %d\n", this->argc);
 		for (size_t i = 0; i < this->argc; i++)
 		{
-			printf("arg%d: %s\n", i, this->argv[i]);
+			printf("arg%d: %s\n", (int)i, this->argv[i]);
 		}
 	}
 }
