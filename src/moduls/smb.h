@@ -52,11 +52,11 @@ private:
     static bool init();
     static vector<smb_entry> get_directory(string dir_name);
     static string get_file_content(smb_entry& ent);
+    static void show_help();
 
 public:
     static smb_config_t parse_smb_args(parser *p);
     static void scan_r(string root, const smb_config_t& smb_cnf);
-    static void read_files(string un, string ps);
     static void free();
 
 };
