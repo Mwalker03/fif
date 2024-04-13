@@ -203,6 +203,11 @@ void local::scan_r(string root, list<string> pattrens)
 local_config local::parse_args(parser *p)
 {
 	local_config lc;
+	if(p->has_kay("-h"))
+	{
+		local::print_help();
+		exit(EXIT_SUCCESS);
+	}
 	if(p->has_kay("--full-scan"))
 		global_config.full_scan = true;
 
@@ -213,4 +218,27 @@ local_config local::parse_args(parser *p)
 		lc.cp = value;
 	}	
 	return lc;
+}
+
+void local::print_help()
+{
+	printf("Welcome to local module:\n"
+		"\nOptions:\n"
+		"  -sp	start point\n"
+		"  -w	words list (separated by $)\n"
+		"  -W	words list from file\n"
+		"  -o	output to a file\n"
+		"  -l	limit file size (in KB, default: 2M)\n"
+		"  --common-places {Windows, Linux}\n"
+		"	search in common directories such: ProgramData, Users and Inetpub\n"
+		"	Linux common directories will comming soon ... \n"
+		"  --full-scan\n"		
+		"	scan the entire drive, do not step over directories\n"
+		"  -h	print this help\n"
+		"\nUsage Example:\n"
+		"  fif local 		# start from current location\n"
+		"  fif local -sp /	# start from root\n"
+		"  fif local -w \"word1$word2$word3\" -sp c:\\users\\[username]\n"
+		"  fif local --common-places Windows\n"
+	);
 }

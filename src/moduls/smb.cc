@@ -9,11 +9,25 @@ smb_config_t smb::cnf;
 struct smb2_context* smb::smb2 = NULL;
 struct smb2_url* smb::url = NULL;
 
-void show_help()
+void smb::show_help()
 {
-    printf("%s", "Welcome to smb module :)\n");
-    printf("%s", "Usage: fif smb -u username -p password -d domain -s server -f path/to/folder");
+    printf("%s", "Welcome to smb module:\n"
+		"\nOptions:\n"
+		"  -u	username\n"
+		"  -p	password\n"
+		"  -d	domain\n"
+		"  -s	servername\\IP\n"
+		"  -f	shared folder to start from\n"
+		"  -w	words list (separated by $)\n"
+		"  -W	words list from file\n"
+		"  -o	output to a file\n"
+		"  -l	limit file size (in KB, default: 2M)\n"
+        "\nUsage Example:\n"
+		"  fif smb -u username -p password -s servername -f foldername\n"
+		"  fif smb -d domainname -u username -p password -s servername -f foldername -o filename\n"
 
+    );
+    //printf("%s", "Usage: fif smb -u username -p password -d domain -s server -f path/to/folder\n");
 }
 string smb::get_arg_value(parser *p, const char *key)
 {
@@ -35,9 +49,9 @@ smb_config_t smb::parse_smb_args(parser *p)
     smb_config_t config;
     if(p->has_kay("-h"))
     {
-        config.showHelp = true;
-        show_help();
-        return config;
+        //config.showHelp = true;
+        smb::show_help();
+        exit(EXIT_SUCCESS);
     }
     if(p->has_kay("-u"))
     {
@@ -204,18 +218,12 @@ void smb::scan_r(string root, const smb_config_t& smb_cnf)
     // vector contains all the sensitive data founded 
     for (smb_entry entry : entries)
     {
-        string tmp = entry.isfile?"File":"Directory";
-        //printf("%-30s %-15s %-30s %zu\n", entry.name.c_str(), tmp.c_str(),  entry.path.c_str(), entry.size);
-                
         if(entry.isfile)
         {
             if(helper::is_ext_ignored(entry.name))
                 continue;
 
-            //printf("get_file_content.entry.full_path -> %s\n", entry.full_path.c_str());
             string file_content = smb::get_file_content(entry);
-            //printf("file content: %s\n", file_content.c_str());
-
             /*  
                 find sensitive in files 
                 send the the full file name
@@ -227,10 +235,7 @@ void smb::scan_r(string root, const smb_config_t& smb_cnf)
                                                     global_config.words_list);
             helper::print_result(results);
             if(global_config.to_file)
-            {
                 helper::log(global_config.output_file_path, results);
-            }
-            /* write to file if needed */
         }
         else
         {
@@ -242,9 +247,14 @@ void smb::scan_r(string root, const smb_config_t& smb_cnf)
 
 void smb::free()
 {
-    smb2_disconnect_share(smb2);
-    smb2_destroy_url(url);
-    smb2_destroy_context(smb2);    
+    if(smb2 != NULL)
+    {
+        smb2_disconnect_share(smb2);
+        smb2_destroy_context(smb2);    
+    }
+    if(url != NULL)
+        smb2_destroy_url(url);
+    
 }
 
 string smb::get_file_content(smb_entry& ent)

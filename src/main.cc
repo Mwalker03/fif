@@ -24,7 +24,6 @@ using namespace std;
 void print_debug(int argc, const char** argv)
 {
 	cprintf(color::blue, "\n%s\n", "debug:");
-	//printf("startpoint: %s\n", config.startpoint.c_str());
 	printf("argc: %d\n", argc);
 	for (int i = 0; i < argc; i++)
 	{
@@ -35,29 +34,23 @@ void print_debug(int argc, const char** argv)
 int main(int argc, const char** argv)
 {
 	extern configuration_manager_t config;
-	// smb_config_t tmp_config;
-	// tmp_config.server = "localhost";
-	// tmp_config.password = "kuku";
-	// tmp_config.start_point = "kuku";
-	// tmp_config.username = "kuku";
-	// tmp_config.words_list = get_default_word_list();
 
 	parser p(argc, argv);
 	global_config.words_list = get_default_word_list();
 	global_config.parse_args(p);
 	
+	if (global_config.debug)
+		print_debug(argc, argv);
+
 	if (p.has_kay("smb"))
 	{
 		smb_config_t smb_conf = smb::parse_smb_args(&p);
 		smb::scan_r(smb_conf.start_point, smb_conf);
-		/* code */
+		smb::free();
 		return EXIT_SUCCESS;
 	}
 	else if(p.has_kay("local"))
 	{
-		if (global_config.debug)
-			print_debug(argc, argv);
-
 		local_config lcl_conf = local::parse_args(&p);
 		if (strings::to_lower(lcl_conf.cp) == "windows")
 		{
@@ -82,10 +75,10 @@ int main(int argc, const char** argv)
 							
 			printf("\n%s", "scan ended.\n");		
 		}		
-
 	}
 	else
 	{
+		helper::print_help();
 		printf("%s", "You must pick a modul: [local], [smb]\n");
 		exit(EXIT_FAILURE);
 	}

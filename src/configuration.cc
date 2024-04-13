@@ -8,6 +8,11 @@ configuration_manager_t global_config;
 
 void configuration_manager_t::parse_args(parser& p)
 {
+	// if (p.has_kay("-h"))
+	// {
+	// 	helper::print_help();
+	// 	exit(EXIT_SUCCESS);
+	// }	
 	if (p.has_kay("-d"))
 		this->debug = true;
 	if (p.has_kay("-e"))
@@ -61,11 +66,6 @@ void configuration_manager_t::parse_args(parser& p)
 			printf("value must be between 1 and 9999999");
 		else
 			global_config.file_size = n;
-	}
-	if (p.has_kay("-h"))
-	{
-		print_help();
-		exit(EXIT_SUCCESS);
 	}
 	if (p.has_kay("-sp"))
 	{

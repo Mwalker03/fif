@@ -129,16 +129,7 @@ vector<finder::sen_data_t> finder::find_sensitive_data(const string& full_path,
 			// sub_match<string::const_iterator>& match
             for (const auto& match : matches)
 			{
-				//sub_match<string::const_iterator>& m;
 				std::string matched_string(match.first, match.second);
-				// printf("Pattren -> %s\nLine -> %s\nmatch.matched -> %s, match.str() -> %s\nmatch.strings -> %s\n", 
-				// 		combined_pattern.c_str(),
-				// 		line.c_str(),
-				// 		match.matched?"True":"False",
-				// 		match.str().c_str(),
-				// 		matched_string.c_str());
-
-				
 				sen_data_t data;
 
                 size_t match_index = match.first - line.begin();
@@ -157,8 +148,6 @@ vector<finder::sen_data_t> finder::find_sensitive_data(const string& full_path,
 				data.snipshot = snippet;
 				data.full_path = full_path;
 				results.push_back(data);
-
-				//printf("line %d: %.*s\n", line_number, (int)length, line.c_str() + match_index);
             }
         }
     }
@@ -283,31 +272,30 @@ list<string> get_default_word_list()
 
 	return wordlist;
 }
-void print_help()
+void helper::print_help()
 {
+	/*asci art for "FIF(Find InFile)" */
+	printf(" ___  _  ___    __ ___  _         _   _        ___  _  _          __  \n| __>| || __>  / /| __><_>._ _  _| | | |._ _  | __><_>| | ___  ___\\ \  \n| _> | || _>  | | | _> | || ' |/ . | | || ' | | _> | || |/ ._><_-< | |\n|_|  |_||_|   | | |_|  |_||_|_|\___| |_||_|_| |_|_| |_|  |_||_|\___./__/ | |\n               \\_\\                                                /_/\n");
 	printf("\nfif (Find In Files) is a tool to find sensitive data in files\n"
 		"The tool ignore audio/video/office file types and step over by default\n"
 		"common directories such: visual studio and nmap ..\n\n"
-		"Usage: fif [options...]\n"
+		"Usage: fif [module] [options...]\n"
+		"\nModuls:\n"
+		"  local	find sensitive data in the LOCAL files\n"
+		"  smb	find sensitive data in SMB share drive\n"
 		"\nDebug:\n"
 		"  -d	print debug vars\n"
 		"  -e	show errors\n"
 		"  -v	verbose mode\n"
 		"\nOptions:\n"
-		"  -sp	start point\n"
 		"  -w	words list (separated by $)\n"
 		"  -W	words list from file\n"
 		"  -o	output to a file\n"
 		"  -l	limit file size (in KB, default: 2M)\n"
 		"  -h	print this help\n"
-		"\nmiscellaneous:\n"
-		"  --common-places {Windows, Linux}\n"
-		"		search in common directories such: ProgramData, Users and Inetpub\n"
-		"		Linux common directories will comming soon ... \n"
-		"  --full-scan		scan the entire drive, do not step over directories"
 		"\nUsage Example:\n"
-		"  fif 		# start from current location\n"
-		"  fif -sp /	# start from root\n"
-		"  fif -w \"word1$word2$word3\" -sp c:\\users\\[username]\n"
-		"  fif --common-places Windows\n");
+		"  fif local [options ...]\n"
+		"  fif smb [options ...]\n"
+		"  fif local -w \"word1$word2$word3\" [options ...]\n"
+	);
 }

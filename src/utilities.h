@@ -33,8 +33,10 @@ public:
     static void print_result(const vector<finder::sen_data_t>& results);
     static bool is_digit(const string& str);
     static bool is_ext_ignored(const string& fname);
+    static void print_help();
     static void log(const string& fpath,
                     const vector<finder::sen_data_t>& data);
+
 
 private:
     static FILE* f_open(string filepath, string mode);
@@ -42,7 +44,6 @@ private:
 
  
 string get_arg_value(parser *p, const char *arg);
-void print_help();
 string get_exec_directory();
 list<string> parse_words_list(string wordlist);
 list<string> get_default_word_list();
