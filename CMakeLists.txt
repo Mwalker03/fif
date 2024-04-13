@@ -6,8 +6,8 @@ cmake_minimum_required (VERSION 3.8)
 project ("fif")
 
 # Set the path to libsmb2 includes and library
-include_directories("/home/kali/Programming/libsmb2/include")
-link_directories("/home/kali/Programming/libsmb2/build")
+include_directories("../../libsmb2/include")
+link_directories("../../libsmb2/build")
 
 if(UNIX)
     set(CMAKE_BUILD_TYPE Debug)
