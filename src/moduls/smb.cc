@@ -192,7 +192,6 @@ vector<smb_entry> smb::get_directory(string dir_name)
                 type = (char *)"unknown";
                 break;
         }
-        
         file.name = ent->name;
         file.size = ent->st.smb2_size;
         file.path = strings::vformat("%s/%s", dir_name.c_str(), ent->name);
@@ -212,17 +211,36 @@ void smb::scan_r(string root, const smb_config_t& smb_cnf)
         puts("error init smb connection");
         exit(1);
     }
-    //printf("get_directory(root): %s\n", root.c_str());
-    vector<smb_entry> entries = smb::get_directory(root);
     
+    if(global_config.debug)
+        printf("get_directory(root): %s\n", root.c_str());
+
+    vector<smb_entry> entries = smb::get_directory(root);
+    if(global_config.debug)
+        printf("%d entries has been found\n", (int)entries.size());
+
     // vector contains all the sensitive data founded 
     for (smb_entry entry : entries)
     {
         if(entry.isfile)
         {
-            if(helper::is_ext_ignored(entry.name))
+            if(entry.size > global_config.file_size)
+            {
+                if(global_config.debug)
+                    puts("[DEBUG] entry.size is bigger then the configuration");
                 continue;
+            }
 
+            if(helper::is_ext_ignored(entry.name))
+            {
+                if(global_config.debug)
+                    printf("file %s is ignored dua his extention", entry.name.c_str());
+                continue;
+            }
+
+            if(global_config.debug)
+                puts("smb::get_file_content(entry)");
+    
             string file_content = smb::get_file_content(entry);
             /*  
                 find sensitive in files 
@@ -230,9 +248,15 @@ void smb::scan_r(string root, const smb_config_t& smb_cnf)
                 so it will be added to the sen_data_t 
             */
             vector<finder::sen_data_t> results;
+            if(global_config.debug)
+                puts("find_sensitive_data");
+
             results = finder::find_sensitive_data(entry.full_path,
                                                     file_content,
                                                     global_config.words_list);
+            if(global_config.debug)
+                printf("number of sensitive data inside the file: %d", (int)results.size());
+
             helper::print_result(results);
             if(global_config.to_file)
                 helper::log(global_config.output_file_path, results);
@@ -242,7 +266,6 @@ void smb::scan_r(string root, const smb_config_t& smb_cnf)
             smb::scan_r(entry.path, smb_cnf);
         }
     }
-    //smb::free();
 }
 
 void smb::free()
@@ -262,10 +285,18 @@ string smb::get_file_content(smb_entry& ent)
     struct smb2fh *fh;
 
     string content;
+    if (global_config.debug)
+    {
+        printf("file: %s\n", ent.full_path.c_str());
+        printf("ent.size: %d\n", (int)ent.size);        
+    }
+    
     content.resize(ent.size);
 
     // Open the file
-    //printf("ent.full_path: %s\n", ent.full_path.c_str());
+    if(global_config.debug)
+        printf("ent.full_path: %s\n", ent.full_path.c_str());
+    
     smb::url = smb2_parse_url(smb2, ent.full_path.c_str());
     if(smb::url->path == NULL)
     {
@@ -278,6 +309,9 @@ string smb::get_file_content(smb_entry& ent)
     }    
 
     // Read the file's content directly into the string's buffer
+    if(global_config.debug)
+        puts("smb2_read(smb2, fh, (uint8_t *)&content[0], ent.size);");
+
     ssize_t read_bytes = smb2_read(smb2, fh, (uint8_t *)&content[0], ent.size);
     if (read_bytes < 0) 
     {
