@@ -33,20 +33,28 @@ void print_debug(int argc, const char** argv)
 
 int main(int argc, const char** argv)
 {
-	extern configuration_manager_t config;
+	//extern configuration_manager_t config;
 
 	parser p(argc, argv);
 	global_config.words_list = get_default_word_list();
 	global_config.parse_args(p);
-	
+
 	if (global_config.debug)
 		print_debug(argc, argv);
 
 	if (p.has_kay("smb"))
 	{
 		smb_config_t smb_conf = smb::parse_smb_args(&p);
+		//DEBUG
+		// smb_conf.domain = 'cygnific.corp.local';
+		// smb_conf.password = 'hpNFYGNXtP&j3^7WfK';
+		// smb_conf.server = 'CYG7056.cygnific.corp.local';
+		// smb_conf.start_point = 'CYG7056_Agentlog';
+		puts("Scan started.");
 		smb::scan_r(smb_conf.start_point, smb_conf);
 		smb::free();
+		puts("Scan finished.");
+
 		return EXIT_SUCCESS;
 	}
 	else if(p.has_kay("local"))

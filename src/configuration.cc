@@ -13,7 +13,7 @@ void configuration_manager_t::parse_args(parser& p)
 	// 	helper::print_help();
 	// 	exit(EXIT_SUCCESS);
 	// }	
-	if (p.has_kay("-d"))
+	if (p.has_kay("--debug"))
 		this->debug = true;
 	if (p.has_kay("-e"))
 		global_config.show_errors = true;
