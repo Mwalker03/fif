@@ -275,24 +275,24 @@ list<string> get_default_word_list()
 void helper::print_help()
 {
 	/*asci art for "FIF(Find InFile)" */
-	printf(" ___  _  ___    __ ___  _         _   _        ___  _  _          __  \n| __>| || __>  / /| __><_>._ _  _| | | |._ _  | __><_>| | ___  ___\\ \  \n| _> | || _>  | | | _> | || ' |/ . | | || ' | | _> | || |/ ._><_-< | |\n|_|  |_||_|   | | |_|  |_||_|_|\___| |_||_|_| |_|_| |_|  |_||_|\___./__/ | |\n               \\_\\                                                /_/\n");
+	printf(" ___  _  ___    __ ___  _         _   _        ___  _  _          __  \n| __>| || __>  / /| __><_>._ _  _| | | |._ _  | __><_>| | ___  ___\\\  \n| _> | || _>  | | | _> | || ' |/ . | | || ' | | _> | || |/ ._><_-< | |\n|_|  |_||_|   | | |_|  |_||_|_|\___| |_||_|_| |_|_| |_|  |_||_|\___./__/ | |\n               \\_\\                                                /_/\n");
+	printf("Version: 0.8");
 	printf("\nfif (Find In Files) is a tool to find sensitive data in files\n"
 		"The tool ignore audio/video/office file types and step over by default\n"
 		"common directories such: visual studio and nmap ..\n\n"
 		"Usage: fif [module] [options...]\n"
 		"\nModuls:\n"
 		"  local	find sensitive data in the LOCAL files\n"
-		"  smb	find sensitive data in SMB share drive\n"
+		"  smb		find sensitive data in SMB share drive\n"
 		"\nDebug:\n"
-		"  -d	print debug vars\n"
-		"  -e	show errors\n"
-		"  -v	verbose mode\n"
+		"  --debug	print debug vars\n"
+		"  -v		verbose mode\n"
 		"\nOptions:\n"
-		"  -w	words list (separated by $)\n"
-		"  -W	words list from file\n"
-		"  -o	output to a file\n"
-		"  -l	limit file size (in KB, default: 2M)\n"
-		"  -h	print this help\n"
+		"  -w		words list (separated by $)\n"
+		"  -W		words list from file\n"
+		"  -o		output to a file\n"
+		"  -l		limit file size (in KB, default: 2M)\n"
+		"  -h		print this help\n"
 		"\nUsage Example:\n"
 		"  fif local [options ...]\n"
 		"  fif smb [options ...]\n"

@@ -8,11 +8,11 @@
 
 typedef struct _configuration_manager
 {
-    bool debug = 0;
-    bool verbose = 0;
-    bool show_errors = 0;
-    bool to_file = 0;
-    bool full_scan = 0;
+    bool debug = false;
+    bool verbose = false;
+    bool show_errors = false;
+    bool to_file = false;
+    bool full_scan = false;
 	string startpoint = ".";
 	list<string> words_list;
     size_t file_size = 2097152;  // limit file size to 2MB

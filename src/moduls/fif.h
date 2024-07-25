@@ -38,6 +38,7 @@ public:
 	static void scan_r(string root, list<string> pattrens);
 	static local_config parse_args(parser *p);
 	static void print_help();
+    static void test();
 private:
 	static void find_sensitive_v2(string fname, list<string> pattrens);
 };
