@@ -1,9 +1,9 @@
 #pragma once
-#ifdef __GNUC__
-#define LINUX
+
+#ifdef _WIN32
+#include "dirent.h" // Include your Windows-compatible dirent.h
 #else
-#define WINDOWS
-#include "dirent.h"
+#include <dirent.h>
 #endif
 
 #include <string>

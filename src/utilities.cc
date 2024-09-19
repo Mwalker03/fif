@@ -1,19 +1,25 @@
+#ifdef _WIN32
+    #include <windows.h>
+    #ifdef byte
+        #undef byte
+    #endif
+#endif
+
+#include "utilities.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <algorithm> 
 
-#include "utilities.h"
 #include "colors/colors.h"
 #include "strings.h"
 #include "configuration.h"
 
-#ifdef WIN32_LEAN_AND_MEAN
-	#include <windows.h>
-#else
-	#include <unistd.h>
-#endif
 
+#ifndef _WIN32
+    #include <unistd.h>
+#endif
 
 FILE* helper::f_open(string filepath, string mode)
 {
@@ -56,29 +62,36 @@ void helper::log(const string& fpath,
 
 bool helper::is_ext_ignored(const string& fname)
 {
-	static list<string> ignored = 
-	{
-	"exe", "css", "doc", "docx" "xls", "xlsx",
-	"ppt", "pptx", "odt", "pdf", "ods",
-	"mp3", "mp4", "jpg", "jpeg", "png",
-	"avi", "wav", "zip", "7z", "rar", "tar.gz",
-	"bin", "iso", "mdb", "mdbx", ".tar", "com",
-	"msi", "ico", "tif", "tiff", "mkv", "mov",
-	"mpg", "mpeg", "swf", "wmv"
-	};
-	
-	/* get file extention */
-	string ext = fname.substr(fname.find_last_of(".") + 1);
-	if (ext.empty())
-		return false;
-	
-	for (string ignore : ignored)
-	{
-		if (ext == ignore)
-			return true;
-	}
+    static const char* ignored[] = 
+    {
+        "exe", "css", "doc", "docx", "xls", "xlsx",
+        "ppt", "pptx", "odt", "pdf", "ods",
+        "mp3", "mp4", "jpg", "jpeg", "png", "bmp",
+        "avi", "wav", "zip", "7z", "rar", "tar.gz",
+        "bin", "iso", "mdb", "mdbx", "tar", "com",
+        "msi", "ico", "tif", "tiff", "mkv", "mov",
+        "mpg", "mpeg", "swf", "wmv", "dll", nullptr
+    };
 
-	return false;
+    /* Get file extension */
+    size_t pos = fname.find_last_of('.');
+    if (pos == string::npos)
+        return false;
+
+    string ext = fname.substr(pos + 1);
+
+    /* Convert ext to lowercase */
+    for (size_t i = 0; i < ext.length(); ++i) 
+        ext[i] = tolower((unsigned char)ext[i]);
+
+    /* Compare with the ignored list */
+    for (int i = 0; ignored[i] != nullptr; ++i) 
+	{
+        if (ext == ignored[i])
+            return true;
+    }
+
+    return false;
 }
 void helper::print_result(const vector<finder::sen_data_t>& results)
 {
@@ -213,6 +226,7 @@ string get_exec_directory()
 
 	return exec_dir;
 }
+
 list<string> parse_words_list(string wordlist)
 {
 	list<string> l;
@@ -276,7 +290,7 @@ void helper::print_help()
 {
 	/*asci art for "FIF(Find InFile)" */
 	printf(" ___  _  ___    __ ___  _         _   _        ___  _  _          __  \n| __>| || __>  / /| __><_>._ _  _| | | |._ _  | __><_>| | ___  ___\\\  \n| _> | || _>  | | | _> | || ' |/ . | | || ' | | _> | || |/ ._><_-< | |\n|_|  |_||_|   | | |_|  |_||_|_|\___| |_||_|_| |_|_| |_|  |_||_|\___./__/ | |\n               \\_\\                                                /_/\n");
-	printf("Version: 0.8");
+	cprintf(color::blue, "Version: 0.8.1");
 	printf("\nfif (Find In Files) is a tool to find sensitive data in files\n"
 		"The tool ignore audio/video/office file types and step over by default\n"
 		"common directories such: visual studio and nmap ..\n\n"

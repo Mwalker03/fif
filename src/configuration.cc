@@ -32,7 +32,7 @@ void configuration_manager_t::parse_args(parser& p)
 			value = strings::vformat("%s\\%s", 
 							exec_path.c_str(), value.c_str());
 			
-			if (config.debug)
+			if (global_config.debug)
 			{
 				cprintf(color::blue, "\n%s\n", "debug:");
 				printf("exec_path: %s\nvalue: %s",

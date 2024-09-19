@@ -46,6 +46,7 @@ int main(int argc, const char** argv)
 	{
 		smb_config_t smb_conf = smb::parse_smb_args(&p);
 		puts("Scan started.");
+		//smb_conf.use_nt_hash = true;
 		smb::scan_r(smb_conf.start_point, smb_conf);
 		smb::free();
 		puts("Scan finished.");

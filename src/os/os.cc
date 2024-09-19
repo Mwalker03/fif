@@ -8,42 +8,41 @@
 #include <future>
 #include <queue>
 
-#ifdef WINDOWS
-#include <direct.h>
-#include <io.h>
-#include <sys/stat.h>
+#ifdef _WIN32
+	#include <direct.h>
+	#include <io.h>
+	#include "dirent.h"
+	#define chdir _chdir
+	#define getcwd _getcwd
 #else
-#include <dirent.h>
-#include <limits.h>
-#include <unistd.h>
-#include <sys/stat.h>
-#define _MAX_PATH PATH_MAX 
+	#include <unistd.h>
+	#include <limits.h>
+	#define _MAX_PATH PATH_MAX
 #endif
 
-string os::get_fullpath(string currdir, string fname)
+#include <sys/stat.h>
+
+
+string os::get_fullpath(string currdir, string fname) 
 {
-	char fullpath[_MAX_PATH] = { 0 };
-#ifdef WINDOWS
-	int ok = _chdir(currdir.c_str());
-#else
-	int ok = chdir(currdir.c_str());
-#endif
-	if (ok == -1)
-		return fullpath;
+    char fullpath[_MAX_PATH] = { 0 };
+    int ok = chdir(currdir.c_str());
+    if (ok == -1)
+        return fullpath;
 
-	char* fp = NULL;
-#ifdef WINDOWS
-	fp = _fullpath(fullpath, fname.c_str(), _MAX_PATH);
+#ifdef _WIN32
+    if (_fullpath(fullpath, fname.c_str(), _MAX_PATH) != NULL) {
+        return fullpath;
+    }
 #else
-	fp = realpath(fname.c_str(), fullpath);
+    if (realpath(fname.c_str(), fullpath) != NULL) {
+        return fullpath;
+    }
 #endif
-	if (fp != NULL)
-	{
-		return fullpath;
-	}
 
-	return fullpath;
+    return fullpath;
 }
+
 size_t os::get_file_size(string fpath)
 {
 	struct stat st;

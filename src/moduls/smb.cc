@@ -67,7 +67,16 @@ smb_config_t smb::parse_smb_args(parser *p)
         perror("You must provied a username via the parameter -u\n");
         exit(EXIT_FAILURE);
     }
-    if(p->has_kay("-p"))
+    if(p->has_kay("-nt_hash"))
+    {
+        config.nt_hash = smb::get_arg_value(p, "-nt_hash");
+        if(config.nt_hash.empty())
+        {
+            perror("You must provied nt_hash\n");
+            exit(EXIT_FAILURE);
+        }        
+    }
+    else if(p->has_kay("-p"))
     {
         config.password = smb::get_arg_value(p, "-p");
         if(config.password.empty())
@@ -106,6 +115,75 @@ smb_config_t smb::parse_smb_args(parser *p)
     return config;
 };
 
+// Function to set NT hash only (LM hash will be empty)
+void smb::set_nt_hash_only(const std::string& nt_hash) 
+{
+    if (nt_hash.size() != 32) {
+        fprintf(stderr, "Invalid NT hash length. Must be 32 characters.\n");
+        exit(1);
+    }
+
+    // Set an empty LM hash (16 bytes of '0') and the provided NT hash (16 bytes)
+    std::string empty_lm_hash = "00000000000000000000000000000000";
+    std::string lm_nt_combined = empty_lm_hash + nt_hash;
+
+    // Set combined hash using smb2_set_password
+    smb2_set_password(smb::smb2, lm_nt_combined.c_str());
+}
+
+bool smb::init2()
+{
+    if (smb2 == NULL) 
+    {
+        smb::smb2 = smb2_init_context();
+        if (smb2 == NULL) 
+        {
+            fprintf(stderr, "Failed to init context\n");
+            exit(0);
+        }
+        smb2_set_version(smb::smb2, SMB2_VERSION_ANY3);  // Force SMB 3.0 for example
+        smb2_set_timeout(smb2, 10000);  // 10 seconds timeout
+
+        std::string share_url = strings::vformat("smb://%s@%s/%s", 
+                                smb::cnf.username.c_str(), smb::cnf.server.c_str(), 
+                                smb::cnf.start_point.c_str());
+
+        smb::url = smb2_parse_url(smb2, share_url.c_str());
+        if (url == NULL) 
+        {
+            fprintf(stderr, "Failed to parse url: %s\n", smb2_get_error(smb::smb2));
+            exit(0);
+        }
+
+        smb2_set_security_mode(smb2, SMB2_NEGOTIATE_SIGNING_ENABLED); 
+        // Format the username with domain
+        std::string username_with_domain = strings::vformat("%s\\%s", 
+                                smb::cnf.domain.c_str(), smb::cnf.username.c_str());
+        
+        smb2_set_user(smb2, username_with_domain.c_str());
+
+        // Check if we're using NT hash authentication
+        if (smb::cnf.use_nt_hash) 
+        {
+            // Set NT hash (LM hash is empty)
+            smb::set_nt_hash_only(smb::cnf.nt_hash);
+        } 
+        else 
+        {
+            // Default: set the password
+            smb2_set_password(smb2, cnf.password.c_str());
+        }
+
+        if (smb2_connect_share(smb::smb2, url->server, url->share, url->user) < 0) 
+        {
+            printf("smb2_connect_share failed. %s\n", smb2_get_error(smb2));
+            printf("debug:\nshare_url -> %s\n", share_url.c_str());
+            exit(10);
+        }
+    }
+
+    return true;
+}
 
 bool smb::init()
 {
@@ -206,7 +284,7 @@ vector<smb_entry> smb::get_directory(string dir_name)
 void smb::scan_r(string root, const smb_config_t& smb_cnf)
 {
     smb::cnf = smb_cnf;
-    if(!smb::init())
+    if(!smb::init2())
     {
         puts("error init smb connection");
         exit(1);

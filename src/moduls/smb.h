@@ -27,6 +27,8 @@ typedef struct _smb_config
     string password;
     string domain;
     string server;
+    string nt_hash;     // For NT hash (32 chars)
+    bool use_nt_hash;        // Flag to indicate NT hash usage
     string start_point;
 	list<string> words_list;
     bool showHelp = false;
@@ -50,6 +52,8 @@ private:
 
     static string get_arg_value(parser *p, const char *key);
     static bool init();
+    static bool init2();
+    static void set_nt_hash_only(const std::string& nt_hash);
     static vector<smb_entry> get_directory(string dir_name);
     static string get_file_content(smb_entry& ent);
     static void show_help();

@@ -1,0 +1,7 @@
+- compile it to windows, at least, make a "local" version
+- add option to read from file - a list of IP's
+- smb: add option to detect which shares are available - and run on them
+- add ftp support
+- add msg when file ext is kdb/kdbx
+- add msg when file name is password, secret, pwd
+
