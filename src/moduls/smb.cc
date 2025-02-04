@@ -156,22 +156,28 @@ bool smb::init2()
         }
 
         smb2_set_security_mode(smb2, SMB2_NEGOTIATE_SIGNING_ENABLED); 
+        
         // Format the username with domain
         std::string username_with_domain = strings::vformat("%s\\%s", 
                                 smb::cnf.domain.c_str(), smb::cnf.username.c_str());
         
         smb2_set_user(smb2, username_with_domain.c_str());
 
-        // Check if we're using NT hash authentication
-        if (smb::cnf.use_nt_hash) 
+        // Check if we're using LM hash authentication
+        if (!smb::cnf.nt_hash.empty()) 
         {
-            // Set NT hash (LM hash is empty)
-            smb::set_nt_hash_only(smb::cnf.nt_hash);
+            // Set LM hash
+            smb2_set_password(smb2, smb::cnf.nt_hash.c_str());
         } 
-        else 
+        else if (!smb::cnf.password.empty())
         {
             // Default: set the password
             smb2_set_password(smb2, cnf.password.c_str());
+        }
+        else
+        {
+            fprintf(stderr, "No password or LM hash provided\n");
+            exit(1);
         }
 
         if (smb2_connect_share(smb::smb2, url->server, url->share, url->user) < 0) 

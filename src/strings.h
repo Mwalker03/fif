@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <string.h>
+#include <stdexcept>
 
 using namespace std;
 
@@ -25,6 +26,12 @@ public:
         va_copy(vaArgsCopy, vaArgs);
         const int iLen = std::vsnprintf(NULL, 0, zcFormat, vaArgsCopy);
         va_end(vaArgsCopy);
+
+         // Handle potential errors from vsnprintf
+        if (iLen < 0) {
+            va_end(vaArgs);
+            throw std::runtime_error("Formatting error in vsnprintf.");
+        }
 
         // return a formatted string without risking memory mismanagement
         // and without assuming any compiler or platform specific behavior

@@ -36,10 +36,13 @@ public:
     static void print_help();
     static void log(const string& fpath,
                     const vector<finder::sen_data_t>& data);
+    static bool is_gold(const std::string& key, const std::string& value);
 
 
 private:
     static FILE* f_open(string filepath, string mode);
+    static bool is_valid_password(const string& password);
+    static bool is_valid_username(const string& username);
 }helper;
 
  

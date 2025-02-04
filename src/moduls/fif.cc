@@ -12,13 +12,15 @@
 
 extern configuration_manager_t config;
 
-bool is_valid_password(const string& password) {
+bool is_valid_password(const string& password) 
+{
 	std::regex pattern("^[a-zA-Z0-9][a-zA-Z0-9!@#$%^&*()_=\\[\\]{};':\"\\\\|.\\/?]{4,25}$");
 	bool is_match = std::regex_match(password, pattern);
 	return is_match;
 }
 
-bool is_valid_username(const string& username) {
+bool is_valid_username(const string& username) 
+{
 	std::regex pattern("^[a-zA-Z][a-zA-Z0-9.]*$");
 	bool is_match = std::regex_match(username, pattern);
 	return is_match;
@@ -27,7 +29,7 @@ bool is_valid_username(const string& username) {
 FILE* f_open(string filepath, string mode)
 {
 	FILE* fp = fopen(filepath.c_str(), mode.c_str());
-	if (fp == NULL)
+	if (fp == nullptr)
 	{
 		if (global_config.show_errors)
 		{
@@ -143,7 +145,8 @@ bool is_c_dir(string dir_name)
 	"Android Studio", "Microsoft Web Tools",
 	"Microsoft.NET", "Nmap", "NuGet", "Microsoft SDKs",
 	"Windows Kits", "VirtualBox", "AspNetCore", 
-	"VisualStudio", "Python27"
+	"VisualStudio", "Python27", "/proc", "/sys",
+	"/dev", "/mnt", "/run", "/var"
 	};
 
 	for (string name : c_dirs)
@@ -155,6 +158,87 @@ bool is_c_dir(string dir_name)
 			return true;
 	}
 	return false;
+}
+
+string local::get_file_content(string fname)
+{
+	FILE* fp = f_open(fname.c_str(), "r");
+	if (fp == nullptr)
+		return "";
+
+	string content;
+	const size_t chunk_size = 4096; // 4KB chunks
+	char buffer[chunk_size];
+
+	while (true) 
+	{
+		size_t bytes_read = fread(buffer, 1, chunk_size, fp);
+		if (bytes_read == 0) 
+		{
+			break; // End of file or error
+		}
+		content.append(buffer, bytes_read);
+		if (bytes_read < chunk_size) 
+		{
+			break; // Last chunk
+		}
+	}
+
+	// Close the file
+	fclose(fp);
+
+	return content;
+}
+
+void local::scan_r2(string root, list<string> pattrens)
+{
+
+	list<fileentry *> files;
+	string filebuff;
+	sen_data sdata;
+	static list<string> ignored = {
+	"exe", "css", "doc", "docx" "xls", "xlsx",
+	"ppt", "pptx", "odt", "pdf", "ods",
+	"mp3", "mp4", "jpg", "jpeg", "png",
+	"avi", "wav", "zip", "7z", "rar", "tar.gz",
+	"bin", "iso", "mdb", "mdbx", ".tar", "com",
+	"msi", "ico", "tif", "tiff", "mkv", "mov",
+	"mpg", "mpeg", "swf", "wmv"
+	};
+	
+	files = os::get_directory(root, global_config.file_size, 
+								ignored, global_config.show_errors);
+
+	for (fileentry *entry : files)
+	{
+		if (global_config.verbose)
+			cprintf(color::mangeta,
+				"entry.path: %s\n", entry->path.c_str());
+
+		if (entry->isfile)
+		{
+			string file_content = local::get_file_content(entry->path);
+			vector<finder::sen_data_t> results;
+			results = finder::find_sensitive_data(entry->path, file_content, pattrens);
+			helper::print_result(results);
+			if(global_config.to_file)
+				helper::log(global_config.output_file_path, results);
+		}
+		else
+		{
+			if(global_config.full_scan)
+				local::scan_r2(entry->path, pattrens);
+			else
+			{
+				if (is_c_dir(entry->path))
+					continue;
+				else
+					local::scan_r2(entry->path, pattrens);
+			}
+		}
+
+		delete entry;
+	}
 }
 
 void local::scan_r(string root, list<string> pattrens)

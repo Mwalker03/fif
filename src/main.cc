@@ -59,9 +59,9 @@ int main(int argc, const char** argv)
 		if (strings::to_lower(lcl_conf.cp) == "windows")
 		{
 			printf("%s", "Scanning common windows places: \n");
-			local::scan_r("C:\\ProgramData", global_config.words_list);
-			local::scan_r("C:\\Users", global_config.words_list);
-			local::scan_r("C:\\Inetpub", global_config.words_list);
+			local::scan_r2("C:\\ProgramData", global_config.words_list);
+			local::scan_r2("C:\\Users", global_config.words_list);
+			local::scan_r2("C:\\Inetpub", global_config.words_list);
 			printf("\n%s", "\n\nScan ended.\n");		
 		}
 		else if (strings::to_lower(lcl_conf.cp) == "linux")
@@ -74,7 +74,7 @@ int main(int argc, const char** argv)
 			printf("scan started from: %s\n", 
 					global_config.startpoint.c_str());
 			
-			local::scan_r(global_config.startpoint, 
+			local::scan_r2(global_config.startpoint, 
 							global_config.words_list);
 							
 			printf("\n%s", "scan ended.\n");		

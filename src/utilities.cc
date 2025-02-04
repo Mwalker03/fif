@@ -103,9 +103,35 @@ void helper::print_result(const vector<finder::sen_data_t>& results)
 		cprintf(color::green, "%s\n", result.snipshot.c_str());
 	}
 }
+std::string regex_escape(const std::string& str) 
+{
+    static const std::string special_chars = R"([\^$.|?*+(){}])";
+    std::string escaped;
+    for (char c : str) 
+	{
+        if (special_chars.find(c) != std::string::npos) 
+		{
+            escaped += '\\';
+        }
+        escaped += c;
+    }
+    return escaped;
+}
 
 string helper::combine_patterns(const list<string>& patterns) 
 {
+    std::string combined_pattern;
+    for (const auto& pattern : patterns) 
+	{
+        std::string escaped_pattern = regex_escape(pattern);
+        combined_pattern += escaped_pattern + "|";
+    }
+    // Remove the trailing '|'
+    if (!combined_pattern.empty())
+        combined_pattern.pop_back();
+    return combined_pattern;
+
+	/*
 	string cp;
     for (const string& pattern : patterns) 
 	{
@@ -116,6 +142,43 @@ string helper::combine_patterns(const list<string>& patterns)
         cp += "(" + pattern + ")";
     }
 	return cp;
+	*/
+
+}
+
+bool helper::is_valid_password(const string& password) 
+{
+	std::regex pattern("^[a-zA-Z0-9][a-zA-Z0-9!@#$%^&*()_=\\[\\]{};':\"\\\\|.\\/?]{4,25}$");
+	bool is_match = std::regex_match(password, pattern);
+	return is_match;
+}
+
+bool helper::is_valid_username(const string& username) 
+{
+	std::regex pattern("^[a-zA-Z][a-zA-Z0-9.]*$");
+	bool is_match = std::regex_match(username, pattern);
+	return is_match;
+}
+bool helper::is_gold(const std::string& key, const std::string& value)
+{
+	if (strings::contains(key, "us"))
+	{
+		bool is_valid_un = helper::is_valid_username(value);
+		if (!is_valid_un)
+			return false;
+	}
+	else if (strings::contains(key, "p") || 
+			 strings::contains(key, "se"))
+	{
+		if (strings::contains(key, "secret") && 
+			strings::contains(value, "secret"))
+			return false;
+		
+		bool is_valid_ps = helper::is_valid_password(value);
+		if (!is_valid_ps)
+			return false;
+	}
+	return true;
 }
 
 vector<finder::sen_data_t> finder::find_sensitive_data(const string& full_path,
@@ -125,7 +188,7 @@ vector<finder::sen_data_t> finder::find_sensitive_data(const string& full_path,
    	// Combine patterns into a single regex
     std::string combined_pattern = helper::combine_patterns(patterns);
 
-    std::regex pattern_regex(combined_pattern);
+    std::regex pattern_regex(combined_pattern, std::regex_constants::icase);
     std::istringstream stream(text);
     std::string line;
     int line_number = 0;
@@ -134,11 +197,37 @@ vector<finder::sen_data_t> finder::find_sensitive_data(const string& full_path,
     while (std::getline(stream, line)) 
 	{
         line_number++;
-        std::smatch matches;
+        std::smatch match;
 
         // Search for the pattern in the current line
-        if (std::regex_search(line, matches, pattern_regex)) 
+        if (std::regex_search(line, match, pattern_regex)) 
 		{
+			// Extract the matched pattern (key)
+            std::string key = match.str();
+
+			// Extract the value after the matched pattern
+            size_t value_start = match.position() + match.length();
+            std::string value = line.substr(value_start);
+            value = strings::trim(value);
+
+            // Validate using is_gold function
+            if (!helper::is_gold(key, value))
+                continue; // Skip if not valid
+
+            // Prepare the snippet (match + some characters after)
+            size_t snippet_length = std::min((size_t)(line.length() - match.position()), (size_t)(match.length() + 15));
+            std::string snippet = line.substr(match.position(), snippet_length);
+
+            sen_data_t data;
+            data.line_number = line_number;
+            data.snipshot = snippet;
+            data.full_path = full_path;
+            results.push_back(data);
+
+            // Since we only need one match per line, move to the next line
+            continue;
+
+			/*
 			// sub_match<string::const_iterator>& match
             for (const auto& match : matches)
 			{
@@ -162,6 +251,7 @@ vector<finder::sen_data_t> finder::find_sensitive_data(const string& full_path,
 				data.full_path = full_path;
 				results.push_back(data);
             }
+			*/
         }
     }
 	return results;
