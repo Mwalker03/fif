@@ -1,7 +1,7 @@
 #include "fif.h"
 #include <regex>
 
-#ifdef WIN32_LEAN_AND_MEAN
+#ifdef _WIN32
 	#include <direct.h>
 #else
 	#include <dirent.h>

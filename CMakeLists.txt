@@ -1,30 +1,46 @@
-﻿cmake_minimum_required(VERSION 3.8)
-project("fif")
+﻿cmake_minimum_required (VERSION 3.8)
+project ("fif" LANGUAGES CXX)
 
-# Set the path to libsmb2 includes and library
-include_directories("libsmb2/include")
-link_directories("libsmb2/lib")
-link_directories("libsmb2/build")
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# ---- Common sources
 set(COMMON_SOURCES
-    "src/main.cc"
-    "src/argsparser/argsparser.h"    
-    "src/argsparser/argsparser.cc"
-    "src/strings.h"            
-    "src/os/os.h"              "src/os/os.cc"
-    "src/colors/colors.h"      "src/colors/colors.cc"    
-    "src/configuration.h"      "src/configuration.cc"
-    "src/utilities.h"          "src/utilities.cc"
-    "src/moduls/fif.h"         "src/moduls/fif.cc"
-    "src/moduls/smb.h"         "src/moduls/smb.cc"
+    src/main.cc
+    src/argsparser/argsparser.cc
+    src/os/os.cc
+    src/colors/colors.cc
+    src/configuration.cc
+    src/utilities.cc
+    src/moduls/fif.cc
 )
 
+# ---- Linux / Unix build (with SMB)
 if(UNIX AND NOT APPLE)
     set(CMAKE_BUILD_TYPE Debug)
-    add_executable(fif ${COMMON_SOURCES})
+
+    include_directories("../../libsmb2/include")
+    link_directories("../../libsmb2/build")
+
+    add_executable(fif
+        ${COMMON_SOURCES}
+        src/moduls/smb.cc
+    )
+
+    target_compile_definitions(fif PRIVATE FIF_HAVE_SMB=1)
     target_link_libraries(fif smb2)
-elseif(WIN32)
-    add_executable(fif ${COMMON_SOURCES} "src/os/dirent.h")
+endif()
+
+# ---- Windows build (no SMB)
+if(WIN32)
+    add_executable(fif
+        ${COMMON_SOURCES}
+    )
+
+    target_compile_definitions(fif PRIVATE FIF_HAVE_SMB=0)
     target_link_libraries(fif ws2_32)
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
+
+    # MinGW static runtime (avoids missing libgcc/libstdc++ dlls)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -static-libgcc -static-libstdc++")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
 endif()

@@ -1,0 +1,3 @@
+/home/kali/Programming/fif/build/CMakeFiles/fif.dir
+/home/kali/Programming/fif/build/CMakeFiles/edit_cache.dir
+/home/kali/Programming/fif/build/CMakeFiles/rebuild_cache.dir

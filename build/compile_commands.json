@@ -1,0 +1,50 @@
+[
+{
+  "directory": "/home/kali/Programming/fif/build",
+  "command": "/usr/bin/clang++-18  -I/home/kali/Programming/fif/../../libsmb2/include -g -o CMakeFiles/fif.dir/src/main.cc.o -c /home/kali/Programming/fif/src/main.cc",
+  "file": "/home/kali/Programming/fif/src/main.cc",
+  "output": "CMakeFiles/fif.dir/src/main.cc.o"
+},
+{
+  "directory": "/home/kali/Programming/fif/build",
+  "command": "/usr/bin/clang++-18  -I/home/kali/Programming/fif/../../libsmb2/include -g -o CMakeFiles/fif.dir/src/argsparser/argsparser.cc.o -c /home/kali/Programming/fif/src/argsparser/argsparser.cc",
+  "file": "/home/kali/Programming/fif/src/argsparser/argsparser.cc",
+  "output": "CMakeFiles/fif.dir/src/argsparser/argsparser.cc.o"
+},
+{
+  "directory": "/home/kali/Programming/fif/build",
+  "command": "/usr/bin/clang++-18  -I/home/kali/Programming/fif/../../libsmb2/include -g -o CMakeFiles/fif.dir/src/os/os.cc.o -c /home/kali/Programming/fif/src/os/os.cc",
+  "file": "/home/kali/Programming/fif/src/os/os.cc",
+  "output": "CMakeFiles/fif.dir/src/os/os.cc.o"
+},
+{
+  "directory": "/home/kali/Programming/fif/build",
+  "command": "/usr/bin/clang++-18  -I/home/kali/Programming/fif/../../libsmb2/include -g -o CMakeFiles/fif.dir/src/colors/colors.cc.o -c /home/kali/Programming/fif/src/colors/colors.cc",
+  "file": "/home/kali/Programming/fif/src/colors/colors.cc",
+  "output": "CMakeFiles/fif.dir/src/colors/colors.cc.o"
+},
+{
+  "directory": "/home/kali/Programming/fif/build",
+  "command": "/usr/bin/clang++-18  -I/home/kali/Programming/fif/../../libsmb2/include -g -o CMakeFiles/fif.dir/src/configuration.cc.o -c /home/kali/Programming/fif/src/configuration.cc",
+  "file": "/home/kali/Programming/fif/src/configuration.cc",
+  "output": "CMakeFiles/fif.dir/src/configuration.cc.o"
+},
+{
+  "directory": "/home/kali/Programming/fif/build",
+  "command": "/usr/bin/clang++-18  -I/home/kali/Programming/fif/../../libsmb2/include -g -o CMakeFiles/fif.dir/src/utilities.cc.o -c /home/kali/Programming/fif/src/utilities.cc",
+  "file": "/home/kali/Programming/fif/src/utilities.cc",
+  "output": "CMakeFiles/fif.dir/src/utilities.cc.o"
+},
+{
+  "directory": "/home/kali/Programming/fif/build",
+  "command": "/usr/bin/clang++-18  -I/home/kali/Programming/fif/../../libsmb2/include -g -o CMakeFiles/fif.dir/src/moduls/fif.cc.o -c /home/kali/Programming/fif/src/moduls/fif.cc",
+  "file": "/home/kali/Programming/fif/src/moduls/fif.cc",
+  "output": "CMakeFiles/fif.dir/src/moduls/fif.cc.o"
+},
+{
+  "directory": "/home/kali/Programming/fif/build",
+  "command": "/usr/bin/clang++-18  -I/home/kali/Programming/fif/../../libsmb2/include -g -o CMakeFiles/fif.dir/src/moduls/smb.cc.o -c /home/kali/Programming/fif/src/moduls/smb.cc",
+  "file": "/home/kali/Programming/fif/src/moduls/smb.cc",
+  "output": "CMakeFiles/fif.dir/src/moduls/smb.cc.o"
+}
+]

@@ -6,9 +6,11 @@
 #include <sstream>
 
 #include <inttypes.h>
-#include <smb2/smb2.h>
-#include <smb2/libsmb2.h>
-#include <smb2/libsmb2-raw.h>
+#if FIF_HAVE_SMB
+	#include <smb2/smb2.h>
+	#include <smb2/libsmb2.h>
+	#include <smb2/libsmb2-raw.h>
+#endif
 
 #include "argsparser/argsparser.h"
 #include "os/os.h"
@@ -16,7 +18,10 @@
 #include "utilities.h"
 #include "colors/colors.h"
 #include "moduls/fif.h"
-#include "moduls/smb.h"
+
+#if FIF_HAVE_SMB
+	#include "moduls/smb.h"
+#endif
 
 
 using namespace std;
@@ -44,12 +49,16 @@ int main(int argc, const char** argv)
 
 	if (p.has_kay("smb"))
 	{
-		smb_config_t smb_conf = smb::parse_smb_args(&p);
-		puts("Scan started.");
-		//smb_conf.use_nt_hash = true;
-		smb::scan_r(smb_conf.start_point, smb_conf);
-		smb::free();
-		puts("Scan finished.");
+		#if FIF_HAVE_SMB
+			smb_config_t smb_conf = smb::parse_smb_args(&p);
+			puts("Scan started.");
+			//smb_conf.use_nt_hash = true;
+			smb::scan_r(smb_conf.start_point, smb_conf);
+			smb::free();
+			puts("Scan finished.");
+		#else
+			printf("SMB scan is not supported in this Windows build.\n");
+		#endif
 
 		return EXIT_SUCCESS;
 	}
